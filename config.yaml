@@ -1,1 +1,4 @@
-{apikey: temp}
+sabHost: 'localhost'
+sabPort: 3000
+sabapiKey: temp
+apikey: 60fa49af916bc402916eeec6440757e6
