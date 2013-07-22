@@ -36,14 +36,12 @@ def search(searchTerm):
 		print("[" + str(k + 1) + "] " + resNames[k])
 	getInput()
 def getInput():
-	print('Entry to download: ')
-	entry = input()
-	if (entry == "q"):
+	entry = raw_input('Entry to download: ')
+	if (entry == 'q'):
 		return
-	while (entry > 5 or entry < 1):
-		print('Please make a valid selection, or q to quit: ')
-		entry = input()
-		if (entry == "q"):
+	while (entry > 5 or entry < 1 or entry != 'q'):
+		entry = raw_input('Please make a valid selection, or q to quit: ')
+		if (entry == 'q'):
 			return
 	print(resUrls[entry])
 
