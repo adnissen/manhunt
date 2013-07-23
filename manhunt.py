@@ -17,6 +17,17 @@ def loadConfig():
 	sabPort = config["sabPort"]
 	sabapiKey = config["sabapiKey"]
 
+def startConfig():
+	entry = raw_input("Enter your sabnzbd+ host: ")
+	config["sabHost"] = entry
+	entry = raw_input("Enter your sabnzbd+ port: ")
+	config["sabPort"] = entry
+	entry = raw_input("Enter your sabnzbd+ apikey: ")
+	config["sabapiKey"] = entry;
+
+	stream = file('config.yaml', 'w')
+	yaml.dump(config, stream)
+
 def writeApiKey(key):
 	stream = file('config.yaml', 'w')
 	config["apikey"] = key
@@ -58,8 +69,9 @@ def addToSab(url, name):
 
 
 loadConfig()
-
-if (len(sys.argv) >= 2):
+if (len(sys.argv) == 2 and sys.argv[1] == "--config"):
+	startConfig()
+elif (len(sys.argv) >= 2):
 	search(" ".join(sys.argv[1:]))
 else:
 	print("useage: manhunt \"searchterm\"")
