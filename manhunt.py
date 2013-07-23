@@ -15,7 +15,7 @@ def loadConfig():
 	sabPort = config["sabPort"]
 	sabapiKey = config["sabapiKey"]
 
-def startConfig():
+def sabConfig():
 	entry = raw_input("Enter your sabnzbd+ host: ")
 	config["sabHost"] = entry
 	entry = raw_input("Enter your sabnzbd+ port: ")
@@ -25,6 +25,16 @@ def startConfig():
 
 	stream = file('config.yaml', 'w')
 	yaml.dump(config, stream)
+
+def addIndex():
+	indexers = yaml.load(open('indexers.yaml'))
+	name = raw_input("Name of indexer (example: nzbs.org): ")
+	url = raw_input("Url of indexer (example: http://nzbs.org/): ")
+	apikey = raw_input("Api Key (example: 60fa49af916bc402916eeec6440757e7): ")
+	indexers[name] = [url, apikey]
+
+	stream = file('indexers.yaml', 'w')
+	yaml.dump(indexers, stream)
 
 def writeApiKey(key):
 	stream = file('config.yaml', 'w')
@@ -72,7 +82,9 @@ def addToSab(url, name):
 
 loadConfig()
 if (len(sys.argv) == 2 and sys.argv[1] == "--config"):
-	startConfig()
+	sabConfig()
+elif (len(sys.argv) == 2 and sys.argv[1] == "--addIndex"):
+	addIndex()
 elif (len(sys.argv) >= 2):
 	search(" ".join(sys.argv[1:]))
 else:
