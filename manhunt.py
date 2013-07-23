@@ -39,7 +39,7 @@ def search(searchTerm):
 	resUrls = []
 	resNames = []
 
-	request = requests.get('http://nzbs.org/api?t=search&q='+ searchTerm + '&apikey=' + apikey)
+	request = requests.get('http://nzbs.org/api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + apikey)
 	root = ET.fromstring(request.content)
 	channel = root[0]
 	numElems = channel[8].attrib
