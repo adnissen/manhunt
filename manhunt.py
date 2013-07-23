@@ -6,13 +6,11 @@ import xml.etree.ElementTree as ET
 import yaml
 
 def loadConfig():
-	global config 
-	global apikey
+	global config
 	global sabHost
 	global sabPort
 	global sabapiKey
 	config = yaml.load(open('config.yaml'))
-	apikey = config["apikey"]
 	sabHost = config["sabHost"]
 	sabPort = config["sabPort"]
 	sabapiKey = config["sabapiKey"]
@@ -38,30 +36,34 @@ def search(searchTerm):
 	global resNames
 	resUrls = []
 	resNames = []
+	global total
+	total = 1
 
-	request = requests.get('http://nzbs.org/api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + apikey)
-	root = ET.fromstring(request.content)
-	channel = root[0]
-	numElems = channel[8].attrib
-	if (numElems["total"] == '0'):
-		print("No results")
-		return
-	for i in range(5):
-		resNames.append(channel[9 + i][0].text)
-		resUrls.append(channel[9 + i][2].text)
-	for k in range(len(resNames)):
-		print("[" + str(k + 1) + "] " + resNames[k])
+	indexers = yaml.load(open('indexers.yaml'))
+	for indexer in indexers:
+		request = requests.get(indexers[indexer][0] + 'api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + indexers[indexer][1])
+		root = ET.fromstring(request.content)
+		channel = root[0]
+		numElems = channel[8].attrib
+		if (numElems["total"] == '0'):
+			print("No results")
+			return
+		for i in range(5):
+			resNames.append(channel[9 + i][0].text)
+			resUrls.append(channel[9 + i][2].text)
+			print("[" + str(total) + "] " + resNames[i])
+			total += 1
 	getInput()
 
 def getInput():
 	entry = raw_input('Entry to download: ')
 	if (entry == 'q'):
 		return
-	while (int(entry) > 5 or int(entry) < 1):
+	while (int(entry) > total or int(entry) < 1):
 		entry = raw_input('Please make a valid selection, or q to quit: ')
 		if (entry == 'q'):
 			return
-	addToSab(resUrls[int(entry)], resNames[int(entry)])
+	addToSab(resUrls[int(entry) - 1], resNames[int(entry) - 1])
 
 def addToSab(url, name):
 	sabUrl = "http://" + str(sabHost) + ":" + str(sabPort) + "/api?mode=addurl&name=" + str(url) + "&nzbname=" + str(name) + "&apikey=" + str(sabapiKey)
