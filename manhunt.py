@@ -7,9 +7,15 @@ import yaml
 
 def loadConfig():
 	global config 
-	config = yaml.load(open('config.yaml'))
 	global apikey
+	global sabHost
+	global sabPort
+	global sabapiKey
+	config = yaml.load(open('config.yaml'))
 	apikey = config["apikey"]
+	sabHost = config["sabHost"]
+	sabPort = config["sabPort"]
+	sabapiKey = config["sabapiKey"]
 
 def writeApiKey(key):
 	stream = file('config.yaml', 'w')
@@ -35,19 +41,25 @@ def search(searchTerm):
 	for k in range(len(resNames)):
 		print("[" + str(k + 1) + "] " + resNames[k])
 	getInput()
+
 def getInput():
 	entry = raw_input('Entry to download: ')
 	if (entry == 'q'):
 		return
-	while (entry > 5 or entry < 1 or entry != 'q'):
+	while (int(entry) > 5 or int(entry) < 1):
 		entry = raw_input('Please make a valid selection, or q to quit: ')
 		if (entry == 'q'):
 			return
-	print(resUrls[entry])
+	addToSab(resUrls[int(entry)], resNames[int(entry)])
+
+def addToSab(url, name):
+	sabUrl = "http://" + str(sabHost) + ":" + str(sabPort) + "/api?mode=addurl&name=" + str(url) + "&nzbname=" + str(name) + "&apikey=" + str(sabapiKey)
+	print(sabUrl)
+
 
 loadConfig()
 
 if (len(sys.argv) >= 2):
-	search(sys.argv[1])
+	search(" ".join(sys.argv[1:]))
 else:
 	print("useage: manhunt \"searchterm\"")
