@@ -35,7 +35,7 @@ def addIndex():
 	# another quick wizard to make adding indexers easier
 	indexers = yaml.load(open('indexers.yaml'))
 	name = raw_input("Name of indexer (example: nzbs.org): ")
-	url = raw_input("Url of indexer (example: http://nzbs.org/ [don't forget the / !]): ")
+	url = raw_input("Url of indexer (example: http://nzbs.org): ")
 	apikey = raw_input("Api Key (example: 60fa49af916bc402916eeec6440757e7): ")
 	indexers[str(name)] = [url, apikey]
 
@@ -53,7 +53,7 @@ def search(searchTerm):
 	indexers = yaml.load(open('indexers.yaml')) 
 	# for every indexer we have, make a request
 	for indexer in indexers:
-		request = requests.get(indexers[indexer][0] + 'api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + indexers[indexer][1])
+		request = requests.get(indexers[indexer][0] + '/api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + indexers[indexer][1])
 		if (r.status_code == 200):
 			root = ET.fromstring(request.content)
 			channel = root[0]
