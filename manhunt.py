@@ -4,6 +4,7 @@ import sys
 import requests
 import xml.etree.ElementTree as ET
 import yaml
+import urllib
 
 def loadConfig():
 	global config
@@ -16,9 +17,9 @@ def loadConfig():
 	sabapiKey = config["sabapiKey"]
 
 def sabConfig():
-	entry = raw_input("Enter your sabnzbd+ host: ")
+	entry = raw_input("Enter your sabnzbd+ host (example: localhost): ")
 	config["sabHost"] = entry
-	entry = raw_input("Enter your sabnzbd+ port: ")
+	entry = raw_input("Enter your sabnzbd+ port (example: 8080): ")
 	config["sabPort"] = entry
 	entry = raw_input("Enter your sabnzbd+ apikey: ")
 	config["sabapiKey"] = entry;
@@ -31,7 +32,7 @@ def addIndex():
 	name = raw_input("Name of indexer (example: nzbs.org): ")
 	url = raw_input("Url of indexer (example: http://nzbs.org/): ")
 	apikey = raw_input("Api Key (example: 60fa49af916bc402916eeec6440757e7): ")
-	indexers[name] = [url, apikey]
+	indexers[str(name)] = [url, apikey]
 
 	stream = file('indexers.yaml', 'w')
 	yaml.dump(indexers, stream)
@@ -52,18 +53,25 @@ def search(searchTerm):
 	indexers = yaml.load(open('indexers.yaml'))
 	for indexer in indexers:
 		request = requests.get(indexers[indexer][0] + 'api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + indexers[indexer][1])
-		root = ET.fromstring(request.content)
-		channel = root[0]
-		numElems = channel[8].attrib
-		if (numElems["total"] == '0'):
-			print("No results")
-			return
-		for i in range(5):
-			resNames.append(channel[9 + i][0].text)
-			resUrls.append(channel[9 + i][2].text)
-			print("[" + str(total) + "] " + resNames[i])
-			total += 1
-	getInput()
+		if (r.status_code == 200):
+			root = ET.fromstring(request.content)
+			channel = root[0]
+			numElems = channel[8].attrib
+			if (numElems["total"] == '0'):
+				print("No results")
+				return
+			for i in range(5):
+				resNames.append(channel[9 + i][0].text)
+				resUrls.append(channel[9 + i][2].text)
+				print("[" + str(total) + "] " + resNames[i])
+				total += 1
+		else:
+			print("Request failed, check to make sure indexers.yaml is correct.")
+	if (total > 1):
+		getInput()
+	else:
+		print("Couldn't search any indexers, make sure indexers.yaml is correct")
+		return
 
 def getInput():
 	entry = raw_input('Entry to download: ')
@@ -76,9 +84,11 @@ def getInput():
 	addToSab(resUrls[int(entry) - 1], resNames[int(entry) - 1])
 
 def addToSab(url, name):
+	url = urllib.quote(url, '')
 	sabUrl = "http://" + str(sabHost) + ":" + str(sabPort) + "/api?mode=addurl&name=" + str(url) + "&nzbname=" + str(name) + "&apikey=" + str(sabapiKey)
-	print(sabUrl)
-
+	request = requests.get(sabUrl)
+	if (r.status_code == 404):
+		print("sabnzbd+ not found, check to make sure config.yaml is correct")
 
 loadConfig()
 if (len(sys.argv) == 2 and sys.argv[1] == "--config"):
