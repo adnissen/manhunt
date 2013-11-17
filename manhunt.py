@@ -54,7 +54,7 @@ def search(searchTerm):
 	# for every indexer we have, make a request
 	for indexer in indexers:
 		request = requests.get(indexers[indexer][0] + '/api?lang=EN&t=search&q='+ searchTerm + '&apikey=' + indexers[indexer][1])
-		if (r.status_code == 200):
+		if (request.status_code == 200):
 			root = ET.fromstring(request.content)
 			channel = root[0]
 			numElems = channel[8].attrib
@@ -91,7 +91,7 @@ def addToSab(url, name):
 	url = urllib.quote(url, '')
 	sabUrl = "http://" + str(sabHost) + ":" + str(sabPort) + "/api?mode=addurl&name=" + str(url) + "&nzbname=" + str(name) + "&apikey=" + str(sabapiKey)
 	request = requests.get(sabUrl)
-	if (r.status_code == 404):
+	if (request.status_code == 404):
 		print("sabnzbd+ not found, check to make sure config.yaml is correct")
 
 # this should probably be in a "__main__", but it doesn't matter since importing it would be dumb to bring with
